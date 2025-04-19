@@ -13,18 +13,10 @@ pipeline {
             steps {
                 sshagent(credentials: ['flask-app-key']) {
                     script {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST << 'EOF'
-                            cd $APP_DIR
-                            git pull origin main  # Ensure we have the latest changes from GitHub
-                            if [ ! -d "venv" ]; then
-                                python3 -m venv venv
-                            fi
-                            source venv/bin/activate
-                            pip install -r requirements.txt
-                            sudo systemctl restart flask-app
-                            EOF
-                        """
+                        sh "ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST 'cd $APP_DIR && git pull origin main'"
+                        sh "ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST 'if [ ! -d \"$VENV_DIR\" ]; then python3 -m venv $VENV_DIR; fi'"
+                        sh "ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST 'source $VENV_DIR/bin/activate && pip install -r $APP_DIR/requirements.txt'"
+                        sh "ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST 'sudo systemctl restart flask-app'"
                     }
                 }
             }

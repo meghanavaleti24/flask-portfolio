@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         REMOTE_USER = "ubuntu"
-        REMOTE_HOST = "18.233.166.221" 
+        REMOTE_HOST = "18.233.166.221"
         APP_DIR = "/home/ubuntu/flask-portfolio"
         VENV_DIR = "${APP_DIR}/venv"
     }
@@ -12,10 +12,10 @@ pipeline {
         stage('Deploy to Flask App EC2') {
             steps {
                 sshagent(credentials: ['flask-app-key']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST <<EOF
+                    sh """
+                        ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST << 'EOF'
                         cd $APP_DIR
-                        git pull origin main  # Ensure we are pulling the latest code
+                        git pull origin main  # Pull the latest changes
                         if [ ! -d "venv" ]; then
                             python3 -m venv venv
                         fi
@@ -23,7 +23,7 @@ pipeline {
                         pip install -r requirements.txt
                         sudo systemctl restart flask-app
                         EOF
-                    '''
+                    """
                 }
             }
         }

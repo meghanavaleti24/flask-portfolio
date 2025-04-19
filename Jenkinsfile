@@ -13,15 +13,16 @@ pipeline {
             steps {
                 sshagent(credentials: ['flask-app-key']) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST '
-                            cd $APP_DIR &&
+                        ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST << EOF
+                            cd $APP_DIR
+                            git pull origin main  # Ensure we are pulling the latest code
                             if [ ! -d "venv" ]; then
                                 python3 -m venv venv
-                            fi &&
-                            source venv/bin/activate &&
-                            pip install -r requirements.txt &&
+                            fi
+                            source venv/bin/activate
+                            pip install -r requirements.txt
                             sudo systemctl restart flask-app
-                        '
+                        EOF
                     """
                 }
             }
